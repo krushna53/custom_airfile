@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/custom-airfile/test</path>
+    <page_callback>CRM_CustomAirfile_Page_Test</page_callback>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>
