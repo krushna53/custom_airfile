@@ -5,10 +5,8 @@ namespace Civi\Api4;
 use Civi\Api4\Generic\AbstractAction;
 use Civi\Api4\Generic\Result;
 
-/**
- * @service
- */
-class AirfileImportRun extends AbstractAction {
+
+class EckAirfileAirfileImportRun extends AbstractAction {
 
   public function _run(Result $result) {
 

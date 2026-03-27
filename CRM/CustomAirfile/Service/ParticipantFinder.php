@@ -17,7 +17,6 @@ class CRM_CustomAirfile_Service_ParticipantFinder extends AutoService {
         'where' => [['id', '=', $participantId]]
       ]);
       if ($participant->rowCount == 0) {
-        print_r('enasd');die('enndwron');
         return [
           'success' => false,
           'error' => "Participant {$participantId} not found"

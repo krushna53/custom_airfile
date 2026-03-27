@@ -3,8 +3,8 @@
 class CRM_CustomAirfile_Page_Test extends CRM_Core_Page {
 
     public function run() {
-      custom_airfile_create_airfile_contents_and_upload();
-      die('uploaded');
+      // custom_airfile_create_airfile_contents_and_upload();
+      // die('uploaded');
       $loader = \Civi::service('custom_airfile.file_loader');
       $parser = \Civi::service('custom_airfile.parser');
       $importer = \Civi::service('custom_airfile.importer');

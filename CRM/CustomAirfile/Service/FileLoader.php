@@ -14,50 +14,51 @@ class CRM_CustomAirfile_Service_FileLoader extends AutoService {
     // Default development file
     //$defaultFile = $config->uploadDir . 'AIRFILE.TXT';
     $defaultFile = "/var/www/html/web/sites/default/files/AIRFILE.TXT";
-    try {
+    return $defaultFile;
+    // try {
 
-      if (!$airfileId) {
-        return $defaultFile;
-      }
+    //   if (!$airfileId) {
+    //     return $defaultFile;
+    //   }
 
-      $airfile = civicrm_api4('Airfile', 'get', [
-        'select' => ['id', 'airfile_87'],
-        'where' => [['id', '=', $airfileId]]
-      ]);
+    //   $airfile = civicrm_api4('Airfile', 'get', [
+    //     'select' => ['id', 'airfile_87'],
+    //     'where' => [['id', '=', $airfileId]]
+    //   ]);
 
-      if (empty($airfile)) {
-        return $defaultFile;
-      }
+    //   if (empty($airfile)) {
+    //     return $defaultFile;
+    //   }
 
-      $fileId = $airfile[0]['airfile_87'] ?? NULL;
+    //   $fileId = $airfile[0]['airfile_87'] ?? NULL;
 
-      if (!$fileId) {
-        return $defaultFile;
-      }
+    //   if (!$fileId) {
+    //     return $defaultFile;
+    //   }
 
-      $file = civicrm_api4('File', 'get', [
-        'select' => ['uri'],
-        'where' => [['id', '=', $fileId]]
-      ]);
+    //   $file = civicrm_api4('File', 'get', [
+    //     'select' => ['uri'],
+    //     'where' => [['id', '=', $fileId]]
+    //   ]);
 
-      if (empty($file)) {
-        return $defaultFile;
-      }
+    //   if (empty($file)) {
+    //     return $defaultFile;
+    //   }
 
-      $uri = $file[0]['uri'];
+    //   $uri = $file[0]['uri'];
 
-      $path = $config->customFileUploadDir . $uri;
+    //   $path = $config->customFileUploadDir . $uri;
 
-      if (!file_exists($path)) {
-        return $defaultFile;
-      }
+    //   if (!file_exists($path)) {
+    //     return $defaultFile;
+    //   }
 
-      return $path;
+    //   return $path;
 
-    }
-    catch (Exception $e) {
-      return $defaultFile;
-    }
+    // }
+    // catch (Exception $e) {
+    //   return $defaultFile;
+    // }
 
   }
 

@@ -2,6 +2,10 @@
 <extension key="custom_airfile" type="module">
   <file>custom_airfile</file>
   <name>custom_airfile</name>
+  <requires>
+    <ext>org.civicrm.api4</ext>
+    <ext>de.systopia.eck</ext>
+</requires>
   <description>FIXME</description>
   <license>AGPL-3.0</license>
   <authors>
