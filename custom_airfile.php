@@ -35,8 +35,8 @@ function custom_airfile_civicrm_install(): void {
     'select' => ['id'],
     'where' => [['name', '=', 'travel_details']]
   ]);
- 
-  if ($group->rowCount == 0) {
+  
+  if ($group->count() == 0) {
     $created = civicrm_api4('CustomGroup', 'create', [
       'checkPermissions' => FALSE,
       'values' => [
@@ -80,7 +80,7 @@ function custom_airfile_civicrm_install(): void {
         ['custom_group_id', '=', $groupId]
       ]
     ]);
-    if ($existing->rowCount == 0) {
+    if ($existing->count() == 0) {
       $result = civicrm_api4('CustomField', 'create', [
           'checkPermissions' => FALSE,
           'values' => [
@@ -104,98 +104,46 @@ function custom_airfile_civicrm_install(): void {
 function custom_airfile_civicrm_enable(): void {
   _custom_airfile_civix_civicrm_enable();
 
-  // Create test event
-  $event = civicrm_api4('Event', 'create', [
-    'checkPermissions' => FALSE,
-    'values' => [
-      'title' => 'Airfile Test Event',
-      'event_type_id' => 1,
-      'is_active' => TRUE,
-      'start_date' => date('Y-m-d H:i:s'),
-      'end_date' => date('Y-m-d H:i:s', strtotime('+30 days')),
-    ]
-  ]);
-  $eventId = $event[0]['id'];
-
-  // Create test contact
-  $contact = civicrm_api4('Contact', 'create', [
-    'checkPermissions' => FALSE,
-    'values' => [
-      'contact_type' => 'Individual',
-      'first_name' => 'DAGMAR',
-      'last_name' => 'WAEGEMAN'
-    ]
-  ]);
-  $contactId = $contact[0]['id'];
-
-  // Create participant
-
-  $participant = civicrm_api4('Participant', 'get', [
-    'checkPermissions' => FALSE,
+  // --------------------------------------------------
+  // 1. Check Event Types
+  // --------------------------------------------------
+  $eventType = civicrm_api4('OptionValue', 'get', [
     'where' => [
-      ['id', '=', 40261],
+      ['option_group_id:name', '=', 'event_type'],
+      ['is_active', '=', TRUE],
     ],
+    'limit' => 25,
+    'checkPermissions' => FALSE,
   ]);
-
-  if ($participant->rowCount == 0) {
-    $participant = civicrm_api4('Participant', 'create', [
-      'checkPermissions' => FALSE,
-      'values' => [
-        'contact_id' => $contactId,
-        'event_id' => $eventId,
-        'status_id' => 1,
-        'role_id' => 1
-      ]
-    ]);
-
-    $participantId = $participant[0]['id'];
-      // Force ID to 40261 for testing
-      CRM_Core_DAO::executeQuery("
-        UPDATE civicrm_participant
-        SET id = 40261
-        WHERE id = %1
-      ", [
-        1 => [$participantId, 'Integer']
-     ]);
+  if ($eventType->count() == 0) {
+    CRM_Core_Session::setStatus(
+      'Airfile: No active Event Type found. Please configure event types.',
+      'Airfile Extension',
+      'error'
+    );
+    \Civi::log()->error('Airfile enable failed: missing event type');
+    return;
   }
 
-
-  try {
-    // Ensure upload dir exists
-    $uploadDir = Civi::paths()->getPath('[civicrm.files]/custom_airfiles');
-    if (!file_exists($uploadDir)) {
-      mkdir($uploadDir, 0777, TRUE);
-    }
-    // Dummy AIRFILE content
-    $dummyFiles = [
-      'AIRFILE3.txt' => "RM*REF 08SEP\nI-DAGMAR MS WAEGEMAN\nH-003;002OBRU;BRUSSELS;NBO;NAIROBI KENYATTA;SN    0481 N N 17OCT1025 2020 17OCT",
-      'AIRFILE4.txt' => "RM*REF 09SEP\nI-JOHN DOE\nH-003;002ONBO;NAIROBI;BRU;BRUSSELS;SN    0491 N N 26OCT2355 0700 27OCT",
-    ];
-
-    foreach ($dummyFiles as $filename => $content) {
-      $filePath = $uploadDir . '/' . $filename;
-
-      // Write file
-      file_put_contents($filePath, $content);
-
-      \Civi::log()->info('Airfile check done');
-
-    }
-    \Civi::log()->info('Airfile dummy files created successfully');
-
-  }
-  catch (\Exception $e) {
-    \Civi::log()->error('Airfile creation failed: ' . $e->getMessage());
+  // --------------------------------------------------
+  // 2. Check Participant Status
+  // --------------------------------------------------
+  $participantStatusTypes = civicrm_api4('ParticipantStatusType', 'get', [
+    'limit' => 25,
+    'checkPermissions' => TRUE,
+  ]);
+  
+  if ($participantStatusTypes->count() == 0) {
+    CRM_Core_Session::setStatus(
+      'Airfile: No participant statuses found.',
+      'Airfile Extension',
+      'error'
+    );
+    \Civi::log()->error('Airfile enable failed: no participant statuses');
+    return;
   }
 
   
-
-  CRM_Core_Session::setStatus(
-    'Test event and participant (ID 40261) created',
-    'Airfile Extension',
-    'success'
-  );
-
 }
 
 function custom_airfile_civicrm_xmlMenu(&$files) {
