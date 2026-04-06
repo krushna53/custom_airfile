@@ -150,28 +150,23 @@ function custom_airfile_civicrm_xmlMenu(&$files) {
   $files[] = __DIR__ . '/xml/Menu/custom_airfile.xml';
 }
 
+
 function custom_airfile_civicrm_searchKitTasks(&$tasks) {
-  $tasks['Eck_Airfile']['custom_airfile_import'] = [
+  $tasks['Eck_Airfile']['airfile_import'] = [
     'title' => ts('Airfile Import'),
     'icon' => 'fa-upload',
-    'entity' => 'Eck_Airfile',
 
     'apiBatch' => [
-      'action' => 'AirfileImportRun', // your API action
+      'entity' => 'Participant',
+      'action' => 'AirfileImportRun',
+      'idField' => 'entity_id',
       'params' => [
-        'ids' => '$ids',
+        'checkPermissions' => FALSE,
       ],
-
-      // Optional but prevents crash
-      'confirmMsg' => ts('Are you sure you want to import selected Airfiles?'),
+      'confirmMsg' => ts('Import %1 Airfiles?'),
+      'runMsg' => ts('Processing Airfiles...'),
+      'successMsg' => ts('Airfile import completed'),
+      'errorMsg' => ts('Error during import'),
     ],
-
-    // Optional UI dialog (nice to have)
-    'uiDialog' => [
-      'confirm' => TRUE,
-    ],
-
-    'successMsg' => ts('Import completed successfully'),
   ];
 }
-
