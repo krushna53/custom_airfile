@@ -105,7 +105,7 @@ class CRM_CustomAirfile_Service_Importer extends AutoService {
         // STEP 2 — Delete existing record
         $results = civicrm_api4('Custom_travel_details', 'delete', [
           'where' => [
-            ['entity_id', '=', 40308],
+            ['entity_id', '=', $participantRecord['id']],
           ],
           'checkPermissions' => TRUE,
         ]);
