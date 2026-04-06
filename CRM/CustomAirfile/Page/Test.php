@@ -3,23 +3,20 @@
 class CRM_CustomAirfile_Page_Test extends CRM_Core_Page {
 
     public function run() {
-      _custom_airfile_create_test_data();
-      // custom_airfile_create_airfile_contents_and_upload();
-      // die('uploaded');
-      // $loader = \Civi::service('custom_airfile.file_loader');
-      // $parser = \Civi::service('custom_airfile.parser');
-      // $importer = \Civi::service('custom_airfile.importer');
-
-      // $path = $loader->getFilePath();
-
-      // $data = $parser->parse($path);
-      // $result = $importer->import($data);
-      // print_r('<pre>');
-      // print_r($result);
-      // print_r('</pre>');
-      // die('ed');
-        CRM_Utils_System::civiExit();
-      }
+      $data =  _custom_airfile_create_test_data();
+      // Assign to template
+      $this->assign('participantId', $data['participantId']);
+      $this->assign('contactId', $data['contactId']);
+      $this->assign('eventId', $data['eventId']);
+      $this->assign('participantLink', $data['participantLink']);
+      $this->assign('contactLink', $data['contactLink']);
+      $this->assign('eventLink', $data['eventLink']);
+      $this->assign('firstName', 'DAGMARAA');
+      $this->assign('lastName', 'WAEGEMANAA');
+      // Render template
+      parent::run();
+      CRM_Utils_System::civiExit();
+    }
 
       
 
@@ -47,8 +44,8 @@ function _custom_airfile_create_test_data() {
       $existingContact = civicrm_api4('Contact', 'get', [
         'checkPermissions' => FALSE,
         'where' => [
-          ['first_name', '=', 'DAGMAR'],
-          ['last_name', '=', 'WAEGEMAN'],
+          ['first_name', '=', 'DAGMARAA'],
+          ['last_name', '=', 'WAEGEMANAA'],
           ['contact_type', '=', 'Individual'],
         ],
         'limit' => 1,
@@ -60,8 +57,8 @@ function _custom_airfile_create_test_data() {
           'checkPermissions' => FALSE,
           'values' => [
             'contact_type' => 'Individual',
-            'first_name' => 'DAGMAR',
-            'last_name' => 'WAEGEMAN',
+            'first_name' => 'DAGMARAA',
+            'last_name' => 'WAEGEMANAA',
           ]
         ]);
         $contactId = $contact->first()['id'];
@@ -87,59 +84,22 @@ function _custom_airfile_create_test_data() {
         if ($participant->count() > 0) {
           $participantId = $participant->first()['id'];
         }
-        if ($participantId) {
-          // --------------------------------------------------
-          // 3. Prepare directory safely
-          // --------------------------------------------------
-          $uploadDir = Civi::paths()->getPath('[civicrm.files]/custom_airfiles');
-
-          if (!file_exists($uploadDir)) {
-            if (!mkdir($uploadDir, 0777, TRUE) && !is_dir($uploadDir)) {
-              CRM_Core_Session::setStatus(
-                'Airfile: Failed to create upload directory.',
-                'Airfile Extension',
-                'error'
-              );
-              \Civi::log()->error('Airfile enable failed: directory creation issue');
-              return;
-            }
-          }
-          // --------------------------------------------------
-          // 4. Create dummy files (safe)
-          // --------------------------------------------------
-          $uploadDir = Civi::paths()->getPath('[civicrm.files]/custom_airfiles');
-          if (!file_exists($uploadDir)) {
-            if (!mkdir($uploadDir, 0777, TRUE) && !is_dir($uploadDir)) {
-              CRM_Core_Session::setStatus(
-                'Airfile: Failed to create upload directory.',
-                'Airfile Extension',
-                'error'
-              );
-              \Civi::log()->error('Airfile: directory creation issue');
-              return;
-            
-            }
-          }
-          $filePath = $uploadDir . '/AIRFILE4.txt';
-
-          $content = "RM*ID/1/{$participantId}\n";
-          $content .= "I-DAGMAR MS WAEGEMAN\n";
-          $content .= "H-003;002OBRU;BRUSSELS;NBO;NAIROBI KENYATTA;SN 0481 N N 17OCT1025 2020 17OCT";
-          
-          if (!file_exists($filePath)) {
-            file_put_contents($filePath, $content);
-          }
-          
-          // Logging
-          \Civi::log()->info("Airfile created for participant ID: {$participantId}");
-          
-          CRM_Core_Session::setStatus(
-            "Airfile created successfully for participant ID: {$participantId}",
-            'Airfile Extension',
-            'success'
-          );
-        }
       }
+      // Build links
+      $baseUrl = \Civi::settings()->get('userFrameworkBaseURL');
+
+      $participantLink = $baseUrl . "/civicrm/contact/view/participant?reset=1&id={$participantId}&cid={$contactId}&action=view&clearcache?reset=1";
+      $contactLink = $baseUrl . "/civicrm/contact/view?reset=1&cid={$contactId}&clearcache?reset=1";
+      $eventLink = $baseUrl . "/civicrm/event/info?reset=1&id={$eventId}&clearcache?reset=1";
+      return [
+        'participantId' => $participantId,
+        'contactId' => $contactId,
+        'eventId' => $eventId,
+        'participantLink' => $participantLink,
+        'contactLink' => $contactLink,
+        'eventLink' => $eventLink,
+      ];
+
     }
   }    
 }

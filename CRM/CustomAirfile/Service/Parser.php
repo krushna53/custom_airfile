@@ -7,13 +7,12 @@ use Civi\Core\Service\AutoService;
  */
 class CRM_CustomAirfile_Service_Parser extends AutoService {
 
-  public function parse(string $filePath): array {
-
-    if (!file_exists($filePath)) {
-      return ['error' => 'File not found'];
+  public function parse(string $content): array {
+    if (!$content) {
+      return ['error' => 'Content not found'];
     }
 
-    $content = file_get_contents($filePath);
+    // $content = file_get_contents($filePath);
     $content = str_replace(["\r\n", "\r"], "\n", $content);
     $lines = explode("\n", $content);
 

@@ -52,26 +52,81 @@ class CRM_CustomAirfile_Service_Importer extends AutoService {
       // $flightNumber = $fieldResolver->getFieldKey('flight_number');
       // $ticketRate = $fieldResolver->getFieldKey('ticket_rate');
       // $bookingReference = $fieldResolver->getFieldKey('booking_reference');
-      foreach($participant['travel_legs'] as $leg) {
-        // STEP 1 — Fetch participant with all custom fields
-        $results = civicrm_api4('Custom_travel_details', 'create', [
-          'values' => [
-            'entity_id' => $participantRecord['id'],
-            'event_number' => $eventNumber,
-            'departure_city' => $leg['from_name'],
-            'arrival_city' => $leg['to_name'],
-            'flight_number' => $leg['flight'],
-            'ticket_rate' => $participant['rate'],
-            'booking_reference' => $leg['booking_reference'],
-            'booking_class'  => $leg['booking_class'],
-            'departure_date'  => $leg['departure_date'],
-            'departure_time'  => $leg['departure_time'],
-            'arrival_date' => $leg['arrival_date'],
-            'arrival_time' => $leg['arrival_time'],
+      // foreach($participant['travel_legs'] as $leg) {
+      //   // STEP 1 — Fetch participant with all custom fields
+      //   $results = civicrm_api4('Custom_travel_details', 'create', [
+      //     'values' => [
+      //       'entity_id' => $participantRecord['id'],
+      //       'event_number' => $eventNumber,
+      //       'departure_city' => $leg['from_name'],
+      //       'arrival_city' => $leg['to_name'],
+      //       'flight_number' => $leg['flight'],
+      //       'ticket_rate' => $participant['rate'],
+      //       'booking_reference' => $leg['booking_reference'],
+      //       'booking_class'  => $leg['booking_class'],
+      //       'departure_date'  => $leg['departure_date'],
+      //       'departure_time'  => $leg['departure_time'],
+      //       'arrival_date' => $leg['arrival_date'],
+      //       'arrival_time' => $leg['arrival_time'],
+      //     ],
+      //     'checkPermissions' => FALSE,
+      //   ]);
+      //   $participantData = $result[0];
+      // }
+      $values = [];
+      $existing = civicrm_api4('Custom_travel_details', 'get', [
+        'select' => ['id'],
+        'where' => [
+          ['entity_id', '=', $participantRecord['id']],
+        ],
+        'limit' => 1,
+        'checkPermissions' => FALSE,
+      ]);
+
+      foreach ($participant['travel_legs'] as $leg) {
+        // STEP 1 — Check if record already exists
+      
+        $values[] = [
+          'entity_id' => $participantRecord['id'],
+          'event_number' => $eventNumber,
+          'departure_city' => $leg['from_name'],
+          'arrival_city' => $leg['to_name'],
+          'flight_number' => $leg['flight'],
+          'ticket_rate' => $participant['rate'],
+          'booking_reference' => $leg['booking_reference'],
+          'booking_class'  => $leg['booking_class'],
+          'departure_date'  => $leg['departure_date'],
+          'departure_time'  => $leg['departure_time'],
+          'arrival_date' => $leg['arrival_date'],
+          'arrival_time' => $leg['arrival_time'],
+        ];       
+      }
+      if ($existing->count()) {
+        // STEP 2 — Delete existing record
+        $results = civicrm_api4('Custom_travel_details', 'delete', [
+          'where' => [
+            ['entity_id', '=', 40308],
           ],
-          'checkPermissions' => FALSE,
+          'checkPermissions' => TRUE,
         ]);
-        $participantData = $result[0];
+        foreach($values as $value) {
+          $result_value = civicrm_api4('Custom_travel_details', 'create', [
+            'values' => $value,
+            'checkPermissions' => FALSE,    
+          ]);  
+        }
+
+      } else {
+        // STEP 3 — Create new record
+        foreach($values as $value) {
+          $result_value = civicrm_api4('Custom_travel_details', 'create', [
+            'values' => $value,
+            'checkPermissions' => FALSE,    
+          ]);
+  
+        }
+      
+
       }
 
     }

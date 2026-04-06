@@ -19,9 +19,9 @@ class CRM_CustomAirfile_Service_FileLoader extends AutoService {
       'limit' => 26,
       'checkPermissions' => TRUE,
     ]);
+    $airfile_url = $airfile[0]['Airfile.Airfile_Upload.url'];
     $domain_url = \CRM_Utils_System::url('', '', true);
     $url = $domain_url . $airfile_url;
-
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     // If authentication is needed (logged-in session)
@@ -30,6 +30,7 @@ class CRM_CustomAirfile_Service_FileLoader extends AutoService {
     }
     $response = curl_exec($ch);
     curl_close($ch);
+
     return $response;
   }
 
